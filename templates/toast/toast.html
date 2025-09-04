@@ -1,0 +1,17 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/toast.css' %}">
+<div class="toast-container">
+    <div class="toast success">
+        <span class="icon">✔</span>
+        <span class="message">Appointment booked successfully!</span>
+    </div>
+    <div class="toast error">
+        <span class="icon">✖</span>
+        <span class="message">Error: Unable to process request.</span>
+    </div>
+    <div class="toast info">
+        <span class="icon">ℹ</span>
+        <span class="message">System update in progress...</span>
+    </div>
+</div>

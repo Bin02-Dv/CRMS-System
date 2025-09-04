@@ -10,28 +10,6 @@
             font-family: 'Inter', sans-serif;
             perspective: 1000px; /* Enables 3D perspective */
         }
-        .card-3d {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            transform-style: preserve-3d;
-        }
-        .card-3d:hover {
-            transform: rotateY(8deg) rotateX(4deg) scale(1.03);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-        }
-        .section-3d {
-            transform-style: preserve-3d;
-            transform: rotateX(-3deg);
-            transition: transform 0.5s;
-        }
-        .section-3d:hover {
-            transform: rotateX(0deg);
-        }
-        .nav-link {
-            transition: transform 0.2s;
-        }
-        .nav-link:hover {
-            transform: translateZ(12px); /* Pop-out effect */
-        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -40,8 +18,9 @@
     <header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
         <div class="text-xl font-bold">Ningi Microfinance Bank CRM</div>
         <div class="flex items-center space-x-4">
-            <span id="user-greeting">Welcome, Admin</span>
-            <button id="logout-btn" class="bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Logout</button>
+            <span id="user-greeting">Welcome, {{current_user.role|capfirst}}</span>
+            {% comment %} <button id="logout-btn" class="bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Logout</button> {% endcomment %}
+            <a href="/logout/" id="logout-btn" class="bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Logout</a>
         </div>
     </header>
 
@@ -222,22 +201,29 @@
                 <table class="w-full bg-white rounded shadow card-3d">
                     <thead>
                         <tr class="bg-gray-200">
-                            <th class="p-2">Username</th>
+                            <th class="p-2">Full Name</th>
+                            <th class="p-2">Phone Number</th>
+                            <th class="p-2">Email</th>
                             <th class="p-2">Role</th>
                             <th class="p-2">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% if all_users %}
+                        {% for user in all_users %}
                         <tr>
-                            <td class="p-2">admin</td>
-                            <td class="p-2">Admin</td>
-                            <td class="p-2"><button class="text-blue-600">Edit Role</button></td>
+                            <td class="p-2">{{user.full_name}}</td>
+                            <td class="p-2">{{user.phone_number}}</td>
+                            <td class="p-2">{{user.email}}</td>
+                            <td class="p-2">{{user.role}}</td>
+                            <td class="p-2"><a href="#" class="text-blue-600">Edit Role</a></td>
                         </tr>
+                        {% endfor %}
+                        {% else %}
                         <tr>
-                            <td class="p-2">teller1</td>
-                            <td class="p-2">Teller</td>
-                            <td class="p-2"><button class="text-blue-600">Edit Role</button></td>
+                            <td class="p-2">No users yet!</td>
                         </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </section>

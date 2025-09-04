@@ -1,57 +1,44 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ningi Microfinance Bank CRM - Login</title>
+    {% include "toast/toast.html" %}
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/loader.css' %}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
             perspective: 1000px; /* Enables 3D perspective */
             background: linear-gradient(to bottom right, #1e3a8a, #93c5fd); /* Matches CRM's blue theme */
         }
-        .card-3d {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            transform-style: preserve-3d;
-        }
-        .card-3d:hover {
-            transform: rotateY(8deg) rotateX(4deg) scale(1.03);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-        }
-        .popup {
-            transform: translateY(-20px);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-        .popup.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg card-3d w-full max-w-md">
         <h1 class="text-2xl font-bold text-center text-blue-600 mb-6">Ningi Microfinance Bank CRM</h1>
-        <form id="login-form" class="space-y-4">
+        <form id="login" class="space-y-4" method="POST">
+            {% csrf_token %}
             <div>
-                <label class="block text-sm font-medium text-gray-700">Username</label>
-                <input type="text" id="username" class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter username" required>
+                <label class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" name="email" id="email" class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter Email" required>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" id="password" class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter password" required>
+                <input type="password" name="password" id="password" class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter password" required>
             </div>
-            <div>
+            {% comment %} <div>
                 <label class="block text-sm font-medium text-gray-700">Role</label>
-                <select id="role" class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <select id="role" name="role" class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
                     <option value="admin">Admin</option>
                     <option value="branch-manager">Branch Manager</option>
                     <option value="credit-officer">Credit Officer</option>
                     <option value="loan-officer">Loan Officer</option>
                     <option value="teller">Teller</option>
                 </select>
-            </div>
+            </div> {% endcomment %}
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700 card-3d">Login</button>
         </form>
         <p class="text-center text-sm text-gray-600 mt-4">Contact admin for account issues</p>
@@ -63,42 +50,65 @@
         <button id="popup-close" class="mt-2 text-blue-600 text-sm">Close</button>
     </div>
 
+    <div class="loader-container hide-loader">
+        <div class="loader"></div>
+        <div class="loader-text">System Loading...</div>
+    </div>
+
+    <script src="{% static 'js/jquery-3.5.1.js' %}"></script>
+
     <script>
-        // Handle form submission (placeholder for backend integration)
-        document.getElementById('login-form').addEventListener('submit', (e) => {
+
+        $(document).on('submit', '#login', function (e){
             e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const role = document.getElementById('role').value;
+            var m_success = $(".success");
+            var m_error = $(".error");
+            var m_info = $(".info");
+            var m_text = $(".message");
 
-            // Simulate authentication (replace with backend API call)
-            if (username && password) {
-                showPopup(`Login successful for ${username} as ${role}`, 'success');
-                // In production, redirect to index.html with role-based session
-                setTimeout(() => {
-                    window.location.href = 'index.html'; // Adjust path as needed
-                }, 2000);
-            } else {
-                showPopup('Invalid username or password', 'error');
-            }
-        });
+            var formData = new FormData(this);
+            var loader = document.querySelector(".loader-container");
 
-        // Popup handling
-        function showPopup(message, type) {
-            const popup = document.getElementById('popup');
-            const popupMessage = document.getElementById('popup-message');
-            popupMessage.textContent = message;
-            popup.classList.remove('hidden', 'bg-red-100', 'bg-green-100');
-            popup.classList.add(type === 'success' ? 'bg-green-100' : 'bg-red-100', 'show');
-            setTimeout(() => {
-                popup.classList.remove('show');
-                popup.classList.add('hidden');
-            }, 3000);
-        }
+            loader.classList.remove("hide-loader");
+            $.ajax({
+                type: 'POST',
+                url: "/login/",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response){
+                    var success = response['success'];
+                    if(success){
+                        m_success.show();
+                        m_error.hide();
+                        m_info.hide();
 
-        // Close popup manually
-        document.getElementById('popup-close').addEventListener('click', () => {
-            document.getElementById('popup').classList.remove('show');
-            document.getElementById('popup').classList.add('hidden');
+                        m_text.html('');
+                        m_text.append(response['message']);
+                        m_text.append("Loading....");
+
+                        loader.classList.add("hide-loader");
+
+                        setTimeout(() => {
+                            $(".toast").fadeOut();
+                        }, 5000);
+
+                        window.location.href = "/dash/";
+                    }else{
+                        m_error.show();
+                        m_success.hide();
+                        m_info.hide();
+
+                        m_text.html('');
+                        m_text.append(response['message']);
+                        loader.classList.add("hide-loader");
+
+                        setTimeout(() => {
+                            $(".toast").fadeOut();
+                        }, 5000);
+                    }
+
+                }
+            });
         });
     </script>
