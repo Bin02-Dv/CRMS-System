@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ningi Microfinance Bank CRM - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            perspective: 1000px; /* Enables 3D perspective */
+            background: linear-gradient(to bottom right, #1e3a8a, #93c5fd); /* Matches CRM's blue theme */
+        }
+        .card-3d {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        .card-3d:hover {
+            transform: rotateY(8deg) rotateX(4deg) scale(1.03);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+        .popup {
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .popup.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg card-3d w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center text-blue-600 mb-6">Ningi Microfinance Bank CRM</h1>
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Username</label>
+                <input type="text" id="username" class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter username" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="password" class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter password" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Role</label>
+                <select id="role" class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <option value="admin">Admin</option>
+                    <option value="branch-manager">Branch Manager</option>
+                    <option value="credit-officer">Credit Officer</option>
+                    <option value="loan-officer">Loan Officer</option>
+                    <option value="teller">Teller</option>
+                </select>
+            </div>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700 card-3d">Login</button>
+        </form>
+        <p class="text-center text-sm text-gray-600 mt-4">Contact admin for account issues</p>
+    </div>
+
+    <!-- Popup for Feedback -->
+    <div id="popup" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-white p-4 rounded shadow-lg popup hidden">
+        <p id="popup-message" class="text-sm"></p>
+        <button id="popup-close" class="mt-2 text-blue-600 text-sm">Close</button>
+    </div>
+
+    <script>
+        // Handle form submission (placeholder for backend integration)
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            // Simulate authentication (replace with backend API call)
+            if (username && password) {
+                showPopup(`Login successful for ${username} as ${role}`, 'success');
+                // In production, redirect to index.html with role-based session
+                setTimeout(() => {
+                    window.location.href = 'index.html'; // Adjust path as needed
+                }, 2000);
+            } else {
+                showPopup('Invalid username or password', 'error');
+            }
+        });
+
+        // Popup handling
+        function showPopup(message, type) {
+            const popup = document.getElementById('popup');
+            const popupMessage = document.getElementById('popup-message');
+            popupMessage.textContent = message;
+            popup.classList.remove('hidden', 'bg-red-100', 'bg-green-100');
+            popup.classList.add(type === 'success' ? 'bg-green-100' : 'bg-red-100', 'show');
+            setTimeout(() => {
+                popup.classList.remove('show');
+                popup.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Close popup manually
+        document.getElementById('popup-close').addEventListener('click', () => {
+            document.getElementById('popup').classList.remove('show');
+            document.getElementById('popup').classList.add('hidden');
+        });
+    </script>

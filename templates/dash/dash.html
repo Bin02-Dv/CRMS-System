@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ningi Microfinance Bank CRM - MVP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            perspective: 1000px; /* Enables 3D perspective */
+        }
+        .card-3d {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        .card-3d:hover {
+            transform: rotateY(8deg) rotateX(4deg) scale(1.03);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+        .section-3d {
+            transform-style: preserve-3d;
+            transform: rotateX(-3deg);
+            transition: transform 0.5s;
+        }
+        .section-3d:hover {
+            transform: rotateX(0deg);
+        }
+        .nav-link {
+            transition: transform 0.2s;
+        }
+        .nav-link:hover {
+            transform: translateZ(12px); /* Pop-out effect */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
+        <div class="text-xl font-bold">Ningi Microfinance Bank CRM</div>
+        <div class="flex items-center space-x-4">
+            <span id="user-greeting">Welcome, Admin</span>
+            <button id="logout-btn" class="bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Logout</button>
+        </div>
+    </header>
+
+    <!-- Main Layout: Sidebar + Content -->
+    <div class="flex h-screen">
+        <!-- Sidebar Navigation with 3D effect -->
+        <nav class="bg-white w-64 p-4 shadow-md overflow-y-auto transform rotateY(-8deg) origin-left" style="transform-style: preserve-3d;">
+            <ul class="space-y-2">
+                <li><a href="#dashboard" class="nav-link block p-2 hover:bg-blue-100 rounded">Dashboard</a></li>
+                <li><a href="#customer-registration" class="nav-link block p-2 hover:bg-blue-100 rounded">Customer Registration</a></li>
+                <li><a href="#loan-management" class="nav-link block p-2 hover:bg-blue-100 rounded">Loan Management</a></li>
+                <li><a href="#communication" class="nav-link block p-2 hover:bg-blue-100 rounded">Customer Communication</a></li>
+                <li><a href="#reports" class="nav-link block p-2 hover:bg-blue-100 rounded">Reports & Analytics</a></li>
+                <li><a href="#user-management" class="nav-link block p-2 hover:bg-blue-100 rounded">User Management</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6 overflow-y-auto">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="page-section section-3d">
+                <h1 class="text-2xl font-bold mb-4">Dashboard</h1>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded shadow card-3d">
+                        <h2 class="text-lg">Active Customers</h2>
+                        <p class="text-3xl">1,250</p>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow card-3d">
+                        <h2 class="text-lg">Active Loans</h2>
+                        <p class="text-3xl">₦5.2M</p>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow card-3d">
+                        <h2 class="text-lg">Repayment Rate</h2>
+                        <p class="text-3xl">95%</p>
+                    </div>
+                </div>
+                <div class="mt-6 bg-white p-4 rounded shadow card-3d">
+                    <h2 class="text-lg mb-2">Pending Alerts</h2>
+                    <ul class="list-disc pl-5">
+                        <li>Overdue loan: Client ID 1234 (₦10,000 due)</li>
+                        <li>Loan application pending: Client ID 5678</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Customer Registration & Profile Management Section -->
+            <section id="customer-registration" class="page-section hidden section-3d">
+                <h1 class="text-2xl font-bold mb-4">Customer Registration & Profiles</h1>
+                <div class="mb-4">
+                    <input type="text" id="customer-search" placeholder="Search customers..." class="border p-2 w-full rounded">
+                </div>
+                <div class="bg-white p-4 rounded shadow card-3d mb-4">
+                    <h2 class="text-lg mb-2">Add New Customer</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block">Full Name</label>
+                            <input type="text" class="border p-2 w-full rounded" placeholder="Enter name">
+                        </div>
+                        <div>
+                            <label class="block">Phone Number</label>
+                            <input type="tel" class="border p-2 w-full rounded" placeholder="08012345678">
+                        </div>
+                        <div>
+                            <label class="block">Address</label>
+                            <input type="text" class="border p-2 w-full rounded" placeholder="Enter address">
+                        </div>
+                        <div>
+                            <label class="block">Account Type</label>
+                            <select class="border p-2 w-full rounded">
+                                <option>Savings</option>
+                                <option>Current</option>
+                                <option>Group</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded card-3d">Register Customer</button>
+                </div>
+                <table class="w-full bg-white rounded shadow card-3d">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Name</th>
+                            <th class="p-2">Phone</th>
+                            <th class="p-2">Account Type</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-2">Aisha Musa</td>
+                            <td class="p-2">08012345678</td>
+                            <td class="p-2">Savings</td>
+                            <td class="p-2"><button class="text-blue-600">View Profile</button></td>
+                        </tr>
+                        <!-- Add more rows dynamically -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Loan Management Section -->
+            <section id="loan-management" class="page-section hidden section-3d">
+                <h1 class="text-2xl font-bold mb-4">Loan Management</h1>
+                <div class="mb-4">
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded card-3d">New Loan Application</button>
+                </div>
+                <table class="w-full bg-white rounded shadow card-3d">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Customer</th>
+                            <th class="p-2">Loan Type</th>
+                            <th class="p-2">Amount</th>
+                            <th class="p-2">Status</th>
+                            <th class="p-2">Due Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-2">Aisha Musa</td>
+                            <td class="p-2">Agricultural</td>
+                            <td class="p-2">₦50,000</td>
+                            <td class="p-2">Approved</td>
+                            <td class="p-2">2025-12-01</td>
+                        </tr>
+                        <!-- Add more rows -->
+                    </tbody>
+                </table>
+                <div class="mt-4 bg-white p-4 rounded shadow card-3d">
+                    <h2 class="text-lg mb-2">Loan Repayment Tracking</h2>
+                    <p>Client: Aisha Musa | Balance: ₦20,000 | Next Due: ₦5,000 on 2025-10-01</p>
+                </div>
+            </section>
+
+            <!-- Customer Communication Section -->
+            <section id="communication" class="page-section hidden section-3d">
+                <h1 class="text-2xl font-bold mb-4">Customer Communication</h1>
+                <div class="mb-4 flex space-x-2">
+                    <select class="border p-2">
+                        <option>SMS</option>
+                        <option>Email</option>
+                    </select>
+                    <textarea class="border p-2 flex-1 rounded" placeholder="Select customer or group..."></textarea>
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded card-3d">Send Message</button>
+                </div>
+                <div class="bg-white p-4 rounded shadow card-3d">
+                    <h2 class="text-lg mb-2">Message Templates</h2>
+                    <ul class="list-disc pl-5">
+                        <li>Loan Repayment Reminder: "Dear [Name], your loan payment of ₦[Amount] is due on [Date]."</li>
+                        <li>Loan Approval: "Congratulations [Name], your loan of ₦[Amount] has been approved!"</li>
+                    </ul>
+                </div>
+                <div class="mt-4 bg-white p-4 rounded shadow card-3d">
+                    <h2 class="text-lg mb-2">Recent Communications</h2>
+                    <p>SMS sent to Aisha Musa: Loan repayment reminder on 2025-09-01</p>
+                </div>
+            </section>
+
+            <!-- Reports & Analytics Section -->
+            <section id="reports" class="page-section hidden section-3d">
+                <h1 class="text-2xl font-bold mb-4">Reports & Analytics</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded shadow card-3d">
+                        <h2 class="text-lg">Loan Portfolio Overview</h2>
+                        <div class="h-40 bg-gray-200 flex items-center justify-center">Chart Placeholder</div>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow card-3d">
+                        <h2 class="text-lg">Repayment Rates</h2>
+                        <div class="h-40 bg-gray-200 flex items-center justify-center">Chart Placeholder</div>
+                    </div>
+                </div>
+                <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded card-3d">Export Report</button>
+            </section>
+
+            <!-- User Management Section -->
+            <section id="user-management" class="page-section hidden section-3d">
+                <h1 class="text-2xl font-bold mb-4">User Management</h1>
+                <div class="mb-4">
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded card-3d">Add New User</button>
+                </div>
+                <table class="w-full bg-white rounded shadow card-3d">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Username</th>
+                            <th class="p-2">Role</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-2">admin</td>
+                            <td class="p-2">Admin</td>
+                            <td class="p-2"><button class="text-blue-600">Edit Role</button></td>
+                        </tr>
+                        <tr>
+                            <td class="p-2">teller1</td>
+                            <td class="p-2">Teller</td>
+                            <td class="p-2"><button class="text-blue-600">Edit Role</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- JavaScript for Navigation and Basic Interactivity -->
+    <script>
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.page-section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+
+                sections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+
+                document.getElementById(targetId).classList.remove('hidden');
+
+                // Highlight active nav
+                navLinks.forEach(l => l.classList.remove('bg-blue-200'));
+                link.classList.add('bg-blue-200');
+            });
+        });
+
+        // Show dashboard by default
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.querySelector('a[href="#dashboard"]').classList.add('bg-blue-200');
+
+        // Placeholder for logout (to be integrated with backend)
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            alert('Logged out successfully');
+            // Redirect to login page in production
+        });
+
+        // Basic customer search filter (client-side demo)
+        document.getElementById('customer-search').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#customer-registration tbody tr');
+            rows.forEach(row => {
+                const name = row.cells[0].textContent.toLowerCase();
+                row.style.display = name.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    </script>
