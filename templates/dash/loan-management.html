@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load humanize %}
 {% block content %}
 <!-- Loan Management Section -->
 <section id="loan-management" class="page-section section-3d">
     <h1 class="text-2xl font-bold mb-4">Loan Management</h1>
+    {% if current_user.role == 'admin' %}
     <div class="mb-4">
         <button id="open-loan-modal" class="bg-blue-600 text-white px-4 py-2 rounded card-3d" data-role="customer-service,loan-officer,admin">New Loan Application</button>
     </div>
@@ -25,10 +27,14 @@
                 <tr>
                     <td class="p-2">{{loan.customer.full_name}}</td>
                     <td class="p-2">{{loan.loan_type}}</td>
-                    <td class="p-2">₦{{loan.loan_amount}}</td>
-                    <td class="p-2">{{loan.status}}</td>
+                    <td class="p-2">₦{{loan.loan_amount|floatformat:2|intcomma}}</td>
+                    <td class="p-2">{{loan.status|capfirst}}</td>
                     <td class="p-2">{{loan.due_date}}</td>
-                    <td class="p-2"><button class="text-blue-600" data-role="all">View Details</button></td>
+                    {% if loan.status != "approved" %}
+                    <td class="p-2"><a href="/approve-loan/{{loan.id}}" class="text-blue-600">Approve Loan</a></td>
+                    {% else %}
+                    <td class="p-2"><a href="#" class="text-green-600">Approved</a></td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             {% else %}
@@ -38,23 +44,32 @@
             {% endif %}
         </tbody>
     </table>
+    {% endif %}
     <div class="mt-4 bg-white p-4 rounded shadow card-3d">
         <h2 class="text-lg mb-2">Loan Repayment Tracking</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="block">Customer</label>
-                <select class="border p-2 w-full rounded">
-                    <option>Aisha Musa</option>
-                    <!-- Add more customers dynamically -->
-                </select>
+        <form id="repayment" method="POST">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block">Customer</label>
+                    <select class="border p-2 w-full rounded" name="customer_id" id="customer_id">
+                        {% if loans %}
+                        {% for loan in loans %}
+                        <option value="{{loan.customer.id}}">{{loan.customer.full_name}}</option>
+                        {% endfor %}
+                        {% else %}
+                        <option>No Customers registered for loan yet!!</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block">Payment Amount</label>
+                    <input type="number" name="payment_amount" id="payment_amount" class="border p-2 w-full rounded" placeholder="Enter payment (₦)">
+                </div>
             </div>
-            <div>
-                <label class="block">Payment Amount</label>
-                <input type="number" class="border p-2 w-full rounded" placeholder="Enter payment (₦)">
-            </div>
-        </div>
-        <p class="mt-2">Balance: ₦20,000 | Next Due: ₦5,000 on 2025-10-01</p>
-        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded card-3d" data-role="loan-officer,teller">Record Payment</button>
+        </form>
+        <p id="repayment-status" class="mt-2 text-gray-700"></p>
+        <button id="recordPaymentBtn" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded card-3d">Record Payment</button>
     </div>
 
     <!-- New Loan Application Modal -->
@@ -161,6 +176,62 @@
 
                 }
             });
+        });
+    </script>
+
+    <script>
+        document.getElementById("recordPaymentBtn").addEventListener("click", function() {
+            let form = document.getElementById("repayment");
+            let customerId = document.getElementById("customer_id").value;
+            let paymentAmount = document.getElementById("payment_amount").value;
+            let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            var m_success = $(".success");
+            var m_error = $(".error");
+            var m_info = $(".info");
+            var m_text = $(".message");
+
+            var loader = document.querySelector(".loader-container");
+
+            loader.classList.remove("hide-loader");
+
+            fetch("/repayment/", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `customer_id=${customerId}&payment_amount=${paymentAmount}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                let statusBox = document.getElementById("repayment-status");
+                if (data.success) {
+                    statusBox.innerHTML = `✅ ${data.message} <br> Balance: ₦${data.balance} | Next Due: ${data.next_due}`;
+                    statusBox.classList.add("text-green-600");
+
+                    m_success.show();
+                    m_error.hide();
+                    m_info.hide();
+
+                    m_text.html('');
+                    m_text.append(`✅ ${data.message} <br> Balance: ₦${data.balance} | Next Due: ${data.next_due}`);
+                    m_text.append("Loading....");
+
+                    loader.classList.add("hide-loader");
+                } else {
+                    statusBox.innerHTML = `❌ ${data.message}`;
+                    statusBox.classList.add("text-red-600");
+                    m_error.show();
+                    m_success.hide();
+                    m_info.hide();
+
+                    m_text.html('');
+                    m_text.append(`❌ ${data.message}`);
+                    loader.classList.add("hide-loader");
+                }
+            })
+            .catch(error => console.error("Error:", error));
         });
     </script>
 

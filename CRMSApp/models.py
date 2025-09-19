@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from django.utils import timezone
 
 # Create your models here.
 
@@ -43,6 +44,27 @@ class Loan(models.Model):
         if self.loan_period and not self.due_date:
             self.due_date = date.today() + relativedelta(months=int(self.loan_period))
         super().save(*args, **kwargs)
-    
+
+class Repayment(models.Model):
+    loan = models.ForeignKey("Loan", on_delete=models.CASCADE, related_name="repayments")
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateTimeField(auto_now_add=True)
+    received_by = models.ForeignKey("AuthModel", on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"Repayment of ₦{self.amount} for {self.loan.customer.full_name}"
+
+class Communication(models.Model):
+    CHANNEL_CHOICES = (
+        ("sms", "SMS"),
+        ("email", "Email"),
+    )
+    customer_name = models.CharField(max_length=100, blank=True, null=True)
+    message = models.TextField(blank=True)
+    channel = models.CharField(max_length=10, choices=CHANNEL_CHOICES, blank=True)
+    date_sent = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.channel.upper()} to {self.customer_name} on {self.date_sent}"
     
     
