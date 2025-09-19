@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% load static %}
 {% block content %}
 <!-- Customer Registration & Profile Management Section -->
 <section id="customer-registration" class="page-section section-3d">
@@ -9,29 +10,36 @@
     </div>
     <div class="bg-white p-4 rounded shadow card-3d mb-4">
         <h2 class="text-lg mb-2">Add New Customer</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="block">Full Name</label>
-                <input type="text" class="border p-2 w-full rounded" placeholder="Enter name">
+        <form id="customer_registration" method="POST">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block">Full Name</label>
+                    <input type="text" name="full_name" class="border p-2 w-full rounded" placeholder="Enter name">
+                </div>
+                <div>
+                    <label class="block">Email</label>
+                    <input type="email" name="email" class="border p-2 w-full rounded" placeholder="Enter email">
+                </div>
+                <div>
+                    <label class="block">Phone Number</label>
+                    <input type="tel" name="phone_number" class="border p-2 w-full rounded" placeholder="08012345678">
+                </div>
+                <div>
+                    <label class="block">Address</label>
+                    <input type="text" name="address" class="border p-2 w-full rounded" placeholder="Enter address">
+                </div>
+                <div>
+                    <label class="block">Account Type</label>
+                    <select name="account_type" class="border p-2 w-full rounded">
+                        <option>Savings</option>
+                        <option>Current</option>
+                        <option>Group</option>
+                    </select>
+                </div>
             </div>
-            <div>
-                <label class="block">Phone Number</label>
-                <input type="tel" class="border p-2 w-full rounded" placeholder="08012345678">
-            </div>
-            <div>
-                <label class="block">Address</label>
-                <input type="text" class="border p-2 w-full rounded" placeholder="Enter address">
-            </div>
-            <div>
-                <label class="block">Account Type</label>
-                <select class="border p-2 w-full rounded">
-                    <option>Savings</option>
-                    <option>Current</option>
-                    <option>Group</option>
-                </select>
-            </div>
-        </div>
-        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded card-3d">Register Customer</button>
+            <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded card-3d">Register Customer</button>
+        </form>
     </div>
     <table class="w-full bg-white rounded shadow card-3d">
         <thead>
@@ -43,15 +51,81 @@
             </tr>
         </thead>
         <tbody>
+            {% if all_customers %}
+            {% for customer in all_customers %}
             <tr>
-                <td class="p-2">Aisha Musa</td>
-                <td class="p-2">08012345678</td>
-                <td class="p-2">Savings</td>
+                <td class="p-2">{{customer.full_name}}</td>
+                <td class="p-2">{{customer.phone_number}}</td>
+                <td class="p-2">{{customer.account_type}}</td>
                 <td class="p-2"><button class="text-blue-600">View Profile</button></td>
             </tr>
-            <!-- Add more rows dynamically -->
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td class="p-2">No Customers Yet!</td>
+            </tr>
+            {% endif %}
         </tbody>
     </table>
 </section>
+
+
+<script src="{% static 'js/jquery-3.5.1.js' %}"></script>
+
+    <script>
+
+        $(document).on('submit', '#customer_registration', function (e){
+            e.preventDefault();
+            var m_success = $(".success");
+            var m_error = $(".error");
+            var m_info = $(".info");
+            var m_text = $(".message");
+
+            var formData = new FormData(this);
+            var loader = document.querySelector(".loader-container");
+
+            loader.classList.remove("hide-loader");
+            $.ajax({
+                type: 'POST',
+                url: "/customer-registration/",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response){
+                    var success = response['success'];
+                    if(success){
+                        m_success.show();
+                        m_error.hide();
+                        m_info.hide();
+
+                        m_text.html('');
+                        m_text.append(response['message']);
+                        m_text.append("Loading....");
+
+                        loader.classList.add("hide-loader");
+
+                        setTimeout(() => {
+                            $(".toast").fadeOut();
+                        }, 5000);
+
+                        window.location.href = "/customer-registration/";
+                    }else{
+                        m_error.show();
+                        m_success.hide();
+                        m_info.hide();
+
+                        m_text.html('');
+                        m_text.append(response['message']);
+                        loader.classList.add("hide-loader");
+
+                        setTimeout(() => {
+                            $(".toast").fadeOut();
+                        }, 5000);
+                    }
+
+                }
+            });
+        });
+    </script>
 
 {% endblock %}

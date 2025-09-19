@@ -91,13 +91,13 @@
         <!-- Sidebar Navigation with 3D effect -->
         <nav class="bg-white w-64 p-4 shadow-md overflow-y-auto transform rotateY(-8deg) origin-left" style="transform-style: preserve-3d;">
             <ul class="space-y-2">
-                <li><a href="/dash/" class="nav-link block p-2 hover:bg-blue-100 rounded">Dashboard</a></li>
-                <li><a href="/customer-registration/" class="nav-link block p-2 hover:bg-blue-100 rounded">Customer Registration</a></li>
-                <li><a href="/loan-management/" class="nav-link block p-2 hover:bg-blue-100 rounded">Loan Management</a></li>
-                <li><a href="/customer-communication/" class="nav-link block p-2 hover:bg-blue-100 rounded">Customer Communication</a></li>
+                <li><a href="/dash/" class="nav-link block p-2 hover:bg-blue-100 rounded {% if request.path == '/dash/' %}bg-blue-100{% endif %}">Dashboard</a></li>
+                <li><a href="/customer-registration/" class="nav-link block p-2 hover:bg-blue-100 rounded {% if request.path == '/customer-registration/' %}bg-blue-100{% endif %}">Customer Registration</a></li>
+                <li><a href="/loan-management/" class="nav-link block p-2 hover:bg-blue-100 rounded {% if request.path == '/loan-management/' %}bg-blue-100{% endif %}">Loan Management</a></li>
+                <li><a href="/customer-communication/" class="nav-link block p-2 hover:bg-blue-100 rounded {% if request.path == '/customer-communication/' %}bg-blue-100{% endif %}">Customer Communication</a></li>
                 {% if current_user.role == 'admin' %}
-                <li><a href="/report/" class="nav-link block p-2 hover:bg-blue-100 rounded">Reports & Analytics</a></li>
-                <li><a href="/user-management/" class="nav-link block p-2 hover:bg-blue-100 rounded">User Management</a></li>
+                <li><a href="/report/" class="nav-link block p-2 hover:bg-blue-100 rounded {% if request.path == '/report/' %}bg-blue-100{% endif %}">Reports & Analytics</a></li>
+                <li><a href="/user-management/" class="nav-link block p-2 hover:bg-blue-100 rounded {% if request.path == '/user-management/' %}bg-blue-100{% endif %}">User Management</a></li>
                 {% endif %}
             </ul>
         </nav>

@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 
+{% load static %}
 {% block content %}
 <!-- Loan Management Section -->
 <section id="loan-management" class="page-section section-3d">
     <h1 class="text-2xl font-bold mb-4">Loan Management</h1>
     <div class="mb-4">
-        <button class="bg-blue-600 text-white px-4 py-2 rounded card-3d">New Loan Application</button>
+        <button id="open-loan-modal" class="bg-blue-600 text-white px-4 py-2 rounded card-3d" data-role="customer-service,loan-officer,admin">New Loan Application</button>
     </div>
     <table class="w-full bg-white rounded shadow card-3d">
         <thead>
@@ -15,22 +16,176 @@
                 <th class="p-2">Amount</th>
                 <th class="p-2">Status</th>
                 <th class="p-2">Due Date</th>
+                <th class="p-2">Actions</th>
             </tr>
         </thead>
         <tbody>
+            {% if loans %}
+                {% for loan in loans %}
+                <tr>
+                    <td class="p-2">{{loan.customer.full_name}}</td>
+                    <td class="p-2">{{loan.loan_type}}</td>
+                    <td class="p-2">₦{{loan.loan_amount}}</td>
+                    <td class="p-2">{{loan.status}}</td>
+                    <td class="p-2">{{loan.due_date}}</td>
+                    <td class="p-2"><button class="text-blue-600" data-role="all">View Details</button></td>
+                </tr>
+                {% endfor %}
+            {% else %}
             <tr>
-                <td class="p-2">Aisha Musa</td>
-                <td class="p-2">Agricultural</td>
-                <td class="p-2">₦50,000</td>
-                <td class="p-2">Approved</td>
-                <td class="p-2">2025-12-01</td>
+                <td class="p-2">No loans yet!</td>
             </tr>
-            <!-- Add more rows -->
+            {% endif %}
         </tbody>
     </table>
     <div class="mt-4 bg-white p-4 rounded shadow card-3d">
         <h2 class="text-lg mb-2">Loan Repayment Tracking</h2>
-        <p>Client: Aisha Musa | Balance: ₦20,000 | Next Due: ₦5,000 on 2025-10-01</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block">Customer</label>
+                <select class="border p-2 w-full rounded">
+                    <option>Aisha Musa</option>
+                    <!-- Add more customers dynamically -->
+                </select>
+            </div>
+            <div>
+                <label class="block">Payment Amount</label>
+                <input type="number" class="border p-2 w-full rounded" placeholder="Enter payment (₦)">
+            </div>
+        </div>
+        <p class="mt-2">Balance: ₦20,000 | Next Due: ₦5,000 on 2025-10-01</p>
+        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded card-3d" data-role="loan-officer,teller">Record Payment</button>
+    </div>
+
+    <!-- New Loan Application Modal -->
+    <div id="loan-application-modal" class="modal">
+        <div class="modal-content card-3d">
+            <h2 class="text-lg font-bold mb-4">New Loan Application</h2>
+            <form id="loan-application-form" class="space-y-4" method="POST">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Customer</label>
+                    <select id="loan-customer" name="customer" class="border p-2 w-full rounded" required>
+                        <option value="">Select customer</option>
+                        {% if customers %}
+                        {% for customer in customers %}
+                        <option value="{{customer.id}}">{{customer.full_name}}</option>
+                        {% endfor %}
+                        {% else %}
+                        <option value="">No Customers Yet!</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Loan Type</label>
+                    <select id="loan-type" name="loan_type" class="border p-2 w-full rounded" required>
+                        <option value="">Select loan type</option>
+                        <option value="Microloan">Microloan</option>
+                        <option value="SME Loan">SME Loan</option>
+                        <option value="Personal Loan">Personal Loan</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Amount Requested (₦)</label>
+                    <input type="number" name="loan_amount" id="loan-amount" class="border p-2 w-full rounded" placeholder="Enter amount" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Repayment Period (Months)</label>
+                    <input type="number" name="loan_period" id="loan-period" class="border p-2 w-full rounded" placeholder="Enter months" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
+                    <input type="number" name="interest_rate" step="0.1" id="loan-interest" class="border p-2 w-full rounded" placeholder="Enter rate" required>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="close-loan-modal" class="bg-gray-600 text-white px-4 py-2 rounded card-3d">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded card-3d">Submit Application</button>
+                </div>
+            </form>
+        </div>
     </div>
 </section>
+
+<script src="{% static 'js/jquery-3.5.1.js' %}"></script>
+
+    <script>
+
+        $(document).on('submit', '#loan-application-form', function (e){
+            e.preventDefault();
+            var m_success = $(".success");
+            var m_error = $(".error");
+            var m_info = $(".info");
+            var m_text = $(".message");
+
+            var formData = new FormData(this);
+            var loader = document.querySelector(".loader-container");
+
+            loader.classList.remove("hide-loader");
+            $.ajax({
+                type: 'POST',
+                url: "/loan-management/",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response){
+                    var success = response['success'];
+                    if(success){
+                        m_success.show();
+                        m_error.hide();
+                        m_info.hide();
+
+                        m_text.html('');
+                        m_text.append(response['message']);
+                        m_text.append("Loading....");
+
+                        loader.classList.add("hide-loader");
+
+                        setTimeout(() => {
+                            $(".toast").fadeOut();
+                        }, 5000);
+
+                        window.location.href = "/loan-management/";
+                    }else{
+                        m_error.show();
+                        m_success.hide();
+                        m_info.hide();
+
+                        m_text.html('');
+                        m_text.append(response['message']);
+                        loader.classList.add("hide-loader");
+
+                        setTimeout(() => {
+                            $(".toast").fadeOut();
+                        }, 5000);
+                    }
+
+                }
+            });
+        });
+    </script>
+
+<script>
+
+    // Modal handling
+    const loanModal = document.getElementById('loan-application-modal');
+    const openLoanModalBtn = document.getElementById('open-loan-modal');
+    const closeLoanModalBtn = document.getElementById('close-loan-modal');
+    const loanForm = document.getElementById('loan-application-form');
+
+    openLoanModalBtn.addEventListener('click', () => {
+        loanModal.style.display = 'flex';
+    });
+
+    closeLoanModalBtn.addEventListener('click', () => {
+        loanModal.style.display = 'none';
+        loanForm.reset();
+    });
+
+    loanModal.addEventListener('click', (e) => {
+        if (e.target === loanModal) {
+            loanModal.style.display = 'none';
+            loanForm.reset();
+        }
+    });
+</script>
 {% endblock %}
